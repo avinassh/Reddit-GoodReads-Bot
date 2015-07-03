@@ -20,7 +20,7 @@ reddit_client = praw.Reddit(user_agent=user_agent)
 reddit_client.login(reddit_username, reddit_password)
 
 replied_comments = []
-last_checked_comment = None
+last_checked_comment = []
 be_gentle_to_reddit = True
 db = SqliteDatabase('goodreadsbot.db')
 
@@ -83,7 +83,7 @@ def get_a_random_message():
     return random.choice(welcome_messages)
 
 
-def get_latest_comments(subreddit='india'):
+def get_latest_comments(subreddit):
     subreddit = reddit_client.get_subreddit(subreddit)
     return subreddit.get_comments()
 
@@ -115,33 +115,41 @@ def take_a_nap():
         time.sleep(30)
 
 
+def goodreads_bot_serve_people(subreddit='india'):
+    global last_checked_comment
+    for comment in get_latest_comments(subreddit):
+        if comment.id in last_checked_comment:
+            break
+        last_checked_comment.append(comment.id)
+        if 'goodreads.com' not in comment.body:
+            continue
+        if is_already_replied(comment.id):
+            break
+        goodread_ids = get_goodreads_ids(comment.body)
+        if not goodread_ids:
+            continue
+        spool = map(get_book_details_by_id, goodread_ids)
+        message = prepare_the_message(spool)
+        comment.reply(message)
+        log_this_comment(comment)
+
+
+def reply_to_self_comments():
+    for comment in reddit_client.get_comment_replies():
+        if not comment.new:
+            break
+        comment.mark_as_read()
+        if 'thank' in comment.body.lower():
+            comment.reply(get_a_random_message())
+            log_this_comment(comment, TableName=ThankedComments)
+
+
 def main():
     while True:
-        global last_checked_comment
-        for comment in get_latest_comments(subreddit='testtesttest'):
-            if comment.id == last_checked_comment:
-                break
-            last_checked_comment = comment.id
-            if 'goodreads.com' not in comment.body:
-                continue
-            if is_already_replied(comment.id):
-                break
-            goodread_ids = get_goodreads_ids(comment.body)
-            if not goodread_ids:
-                continue
-            spool = [get_book_details_by_id(gr_id) for gr_id in goodread_ids]
-            message = prepare_the_message(spool)
-            comment.reply(message)
-            log_this_comment(comment)
-        # check if someone has replied to me
-        for comment in reddit_client.get_comment_replies():
-            if not comment.new:
-                break
-            comment.mark_as_read()
-            if 'thank' in comment.body.lower():
-                comment.reply(get_a_random_message())
-                log_this_comment(comment, TableName=ThankedComments)
+        goodreads_bot_serve_people(subreddit='testtesttest')
+        reply_to_self_comments()
         take_a_nap()
+        break
 
 if __name__ == '__main__':
     initialize_db()
