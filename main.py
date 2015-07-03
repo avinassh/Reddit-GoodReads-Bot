@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import time
+import json
+import random
 
 import praw
 from peewee import *
@@ -23,7 +25,20 @@ be_gentle_to_reddit = True
 db = SqliteDatabase('goodreadsbot.db')
 
 
+with open('welcome_messages.json') as f:
+    welcome_messages = json.load(f)['messages']
+
+
 class RepliedComments(Model):
+    comment_id = CharField()
+    author = CharField()
+    subreddit = CharField()
+
+    class Meta:
+        database = db
+
+
+class ThankedComments(Model):
     comment_id = CharField()
     author = CharField()
     subreddit = CharField()
@@ -35,7 +50,7 @@ class RepliedComments(Model):
 def initialize_db():
     db.connect()
     try:
-        db.create_tables([RepliedComments])
+        db.create_tables([RepliedComments, ThankedComments])
     except OperationalError:
         # Table already exists. Do nothing
         pass
@@ -56,19 +71,16 @@ def is_already_replied(comment_id):
         return False
 
 
-def log_this_comment(comment):
-    comment_data = RepliedComments(comment_id=comment.id,
-                                   author=comment.author.name,
-                                   subreddit=comment.subreddit.title)
+def log_this_comment(comment, TableName=RepliedComments):
+    comment_data = TableName(comment_id=comment.id,
+                             author=comment.author.name,
+                             subreddit=comment.subreddit.title)
     comment_data.save()
     replied_comments.append(comment.id)
 
 
-def reply_to_thanked_user(comment_id):
-    # whenever a user says thanks reply to him!
-    #
-    # make sure the parent author is bot
-    pass
+def get_a_random_message():
+    return random.choice(welcome_messages)
 
 
 def get_latest_comments(subreddit='india'):
@@ -108,13 +120,11 @@ def main():
         global last_checked_comment
         for comment in get_latest_comments(subreddit='testtesttest'):
             if comment.id == last_checked_comment:
-                take_a_nap()
                 break
             last_checked_comment = comment.id
             if 'goodreads.com' not in comment.body:
                 continue
             if is_already_replied(comment.id):
-                take_a_nap()
                 break
             goodread_ids = get_goodreads_ids(comment.body)
             if not goodread_ids:
@@ -124,7 +134,14 @@ def main():
             comment.reply(message)
             log_this_comment(comment)
         # check if someone has replied to me
-
+        for comment in reddit_client.get_comment_replies():
+            if not comment.new:
+                break
+            comment.mark_as_read()
+            if 'thank' in comment.body.lower():
+                comment.reply(get_a_random_message())
+                log_this_comment(comment, TableName=ThankedComments)
+        take_a_nap()
 
 if __name__ == '__main__':
     initialize_db()
