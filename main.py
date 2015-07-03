@@ -6,6 +6,7 @@ import praw
 from peewee import *
 from peewee import OperationalError
 from peewee import DoesNotExist
+import pypandoc
 
 from goodreadsapi import get_book_details_by_id, get_goodreads_ids
 from settings import reddit_username, reddit_password
@@ -18,6 +19,7 @@ reddit_client.login(reddit_username, reddit_password)
 
 replied_comments = []
 last_checked_comment = None
+be_gentle_to_reddit = True
 db = SqliteDatabase('goodreadsbot.db')
 
 
@@ -82,32 +84,45 @@ def prepare_the_message(spool):
                                            book['authors'],
                                            book['average_rating'],
                                            book['ratings_count'],
-                                           book['description'])
+                                           html_to_md(book['description']))
         message += '\n\n---\n\n'
     message += 'Bleep, Blop, Bleep! I am still in beta, please be ~~genital~~ ~~gental~~ fuck, be nice.'
     return message
 
 
+def html_to_md(string):
+    # remove the <br> tags before conversion
+    if not string:
+        return
+    string = string.replace('<br>', ' ')
+    return pypandoc.convert(string, 'md', format='html')
+
+
+def take_a_nap():
+    if be_gentle_to_reddit:
+        time.sleep(30)
+
+
 def main():
     while True:
         global last_checked_comment
-        for comment in get_latest_comments():
+        for comment in get_latest_comments(subreddit='testtesttest'):
             if comment.id == last_checked_comment:
-                time.sleep(30)
+                take_a_nap()
                 break
             last_checked_comment = comment.id
             if 'goodreads.com' not in comment.body:
                 continue
             if is_already_replied(comment.id):
-                time.sleep(30)
+                take_a_nap()
                 break
             goodread_ids = get_goodreads_ids(comment.body)
             if not goodread_ids:
                 continue
-            log_this_comment(comment)
             spool = [get_book_details_by_id(gr_id) for gr_id in goodread_ids]
             message = prepare_the_message(spool)
             comment.reply(message)
+            log_this_comment(comment)
         # check if someone has replied to me
 
 
