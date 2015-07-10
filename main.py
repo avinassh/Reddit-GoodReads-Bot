@@ -9,15 +9,19 @@ from peewee import *
 from peewee import OperationalError
 from peewee import DoesNotExist
 import pypandoc
+from prawoauth2 import PrawOAuth2Mini
 
 from goodreadsapi import get_book_details_by_id, get_goodreads_ids
-from settings import reddit_username, reddit_password
+from settings import (app_key, app_secret, access_token, refresh_token,
+                      user_agent, scopes)
 
 # instantiate goodreads and reddit clients
-user_agent = 'Goodreads, v0.1. Gives info of the book whenever goodreads\
-link to a book is posted. (by /u/avinassh)'
+
 reddit_client = praw.Reddit(user_agent=user_agent)
-reddit_client.login(reddit_username, reddit_password)
+oauth_helper = PrawOAuth2Mini(reddit_client, app_key=app_key,
+                              app_secret=app_secret,
+                              access_token=access_token,
+                              refresh_token=refresh_token, scopes=scopes)
 
 replied_comments = []
 last_checked_comment = []
@@ -146,10 +150,14 @@ def reply_to_self_comments():
 
 def main():
     while True:
-        goodreads_bot_serve_people(subreddit='testtesttest')
-        reply_to_self_comments()
+        try:
+            goodreads_bot_serve_people(subreddit='india')
+            reply_to_self_comments()
+        except praw.errors.OAuthInvalidToken:
+            oauth_helper.refresh()
+
         take_a_nap()
-        break
+        # break
 
 if __name__ == '__main__':
     initialize_db()
