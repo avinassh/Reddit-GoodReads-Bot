@@ -40,3 +40,9 @@ nosetests.xml
 
 # virtualenv
 venv/
+
+# tokens
+settings.py
+
+# db for bot
+goodreadsbot.db
