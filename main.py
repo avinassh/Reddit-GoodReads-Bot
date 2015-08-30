@@ -78,7 +78,7 @@ def is_already_replied(comment_id):
 def log_this_comment(comment, TableName=RepliedComments):
     comment_data = TableName(comment_id=comment.id,
                              author=comment.author.name,
-                             subreddit=comment.subreddit.title)
+                             subreddit=comment.subreddit.display_name)
     comment_data.save()
     replied_comments.append(comment.id)
 
