@@ -26,6 +26,7 @@ oauth_helper = PrawOAuth2Mini(reddit_client, app_key=app_key,
 
 replied_comments = []
 last_checked_comment = []
+thanked_comments = []
 db = SqliteDatabase('goodreadsbot.db')
 
 
@@ -73,6 +74,11 @@ def is_already_replied(comment_id):
         return True
     except DoesNotExist:
         return False
+
+
+def is_already_thanked(comment_id):
+    if comment_id in thanked_comments:
+        return True
 
 
 def log_this_comment(comment, TableName=RepliedComments):
@@ -140,11 +146,12 @@ def goodreads_bot_serve_people(subreddit='india'):
 
 def reply_to_self_comments():
     for comment in reddit_client.get_comment_replies():
-        if not comment.new:
+        if is_already_thanked(comment_id=comment.id) or not comment.new:
             break
         comment.mark_as_read()
         if 'thank' in comment.body.lower():
             comment.reply(get_a_random_message())
+            thanked_comments.append(comment.id)
             log_this_comment(comment, TableName=ThankedComments)
 
 
