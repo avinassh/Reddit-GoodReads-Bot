@@ -13,7 +13,7 @@ from prawoauth2 import PrawOAuth2Mini
 
 from goodreadsapi import get_book_details_by_id, get_goodreads_ids
 from settings import (app_key, app_secret, access_token, refresh_token,
-                      user_agent, scopes)
+                      user_agent, scopes, supported_subreddits)
 
 # instantiate goodreads and reddit clients
 
@@ -151,7 +151,7 @@ def reply_to_self_comments():
 def main():
     while True:
         try:
-            goodreads_bot_serve_people(subreddit='india')
+            goodreads_bot_serve_people(subreddit=supported_subreddits)
             reply_to_self_comments()
         except praw.errors.OAuthInvalidToken:
             oauth_helper.refresh()
