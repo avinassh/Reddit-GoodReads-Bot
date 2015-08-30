@@ -13,7 +13,8 @@ from prawoauth2 import PrawOAuth2Mini
 
 from goodreadsapi import get_book_details_by_id, get_goodreads_ids
 from settings import (app_key, app_secret, access_token, refresh_token,
-                      user_agent, scopes, supported_subreddits)
+                      user_agent, scopes, supported_subreddits,
+                      be_gentle_to_reddit)
 
 # instantiate goodreads and reddit clients
 
@@ -25,7 +26,6 @@ oauth_helper = PrawOAuth2Mini(reddit_client, app_key=app_key,
 
 replied_comments = []
 last_checked_comment = []
-be_gentle_to_reddit = True
 db = SqliteDatabase('goodreadsbot.db')
 
 
