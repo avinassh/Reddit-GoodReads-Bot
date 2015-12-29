@@ -99,14 +99,15 @@ def get_latest_comments(subreddit):
 
 
 def prepare_the_message(spool):
-    message_template = u"**Name**: {0}\n\n**Author**: {1}\n\n**Avg Rating**: {2} by {3} users\n\n**Description**: {4}"
+    message_template = u"**Name**: {0}\n\n**Author**: {1}\n\n**Avg Rating**: {2} by {3} users\n\n**Description**: {4}\n\n Pages: {5}"
     message = ""
     for book in spool:
         message += message_template.format(book['title'],
                                            book['authors'],
                                            book['average_rating'],
                                            book['ratings_count'],
-                                           html_to_md(book['description']))
+                                           html_to_md(book['description']),
+                                           book['num_pages'])
         message += '\n\n---\n\n'
     message += 'Bleep, Blop, Bleep! I am still in beta, please be be nice. Contact [my creator](https://www.reddit.com/message/compose/?to=avinassh) for feedback, bug reports or just to say thanks!'
     return message
