@@ -108,7 +108,7 @@ def prepare_the_message(spool):
                                            book['ratings_count'],
                                            html_to_md(book['description']))
         message += '\n\n---\n\n'
-    message += 'Bleep, Blop, Bleep! I am still in beta, please be ~~genital~~ ~~gental~~ fuck, be nice.'
+    message += 'Bleep, Blop, Bleep! I am still in beta, please be be nice. Contact [my creator](https://www.reddit.com/message/compose/?to=avinassh) for feedback, bug reports or just to say thanks!'
     return message
 
 
