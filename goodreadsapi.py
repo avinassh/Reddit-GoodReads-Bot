@@ -24,10 +24,10 @@ def get_book_details_by_id(goodreads_id):
     except (TypeError, KeyError, ExpatError):
         return False
     keys = ['title', 'average_rating', 'ratings_count', 'description',
-            'num_pages']
+            'num_pages', 'publication_year']
     book = {}
     for k in keys:
-        book[k] = book_data[k]
+        book[k] = book_data.get(k)
     if type(book_data['authors']['author']) == list:
         authors = [author['name'] for author in book_data['authors']['author']]
         authors = ', '.join(authors)
