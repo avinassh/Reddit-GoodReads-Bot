@@ -133,10 +133,10 @@ def goodreads_bot_serve_people(subreddit='india'):
         if comment.id in last_checked_comment:
             break
         last_checked_comment.append(comment.id)
+        if 'goodreads.com' not in comment.body:
+            continue
         author = comment.author
         if author.name == 'goodreadsbot':
-            continue
-        if 'goodreads.com' not in comment.body:
             continue
         if is_already_replied(comment.id):
             break
