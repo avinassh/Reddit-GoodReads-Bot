@@ -145,8 +145,15 @@ def goodreads_bot_serve_people(subreddit='india'):
             continue
         spool = map(get_book_details_by_id, goodread_ids)
         message = prepare_the_message(spool)
-        comment.reply(message)
-        log_this_comment(comment)
+        try:
+            comment.reply(message)
+            log_this_comment(comment)
+        except praw.errors.APIException as e:
+            if 'too long' in e.message:
+                error = ('You have linked to many books in your comment and '
+                         'my response crossed Reddit\'s 10k limit. Sorry!')
+                comment.reply(error)
+            replied_comments.append(comment.id)
 
 
 def reply_to_self_comments():
