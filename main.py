@@ -5,9 +5,8 @@ import json
 import random
 
 import praw
-from peewee import *
-from peewee import OperationalError
-from peewee import DoesNotExist
+from peewee import (SqliteDatabase, Model, CharField, OperationalError,
+                    DoesNotExist)
 import pypandoc
 from prawoauth2 import PrawOAuth2Mini
 
@@ -99,7 +98,9 @@ def get_latest_comments(subreddit):
 
 
 def prepare_the_message(spool):
-    message_template = u"**Name**: {0}\n\n**Author**: {1}\n\n**Avg Rating**: {2} by {3} users\n\n**Description**: {4}\n\n Pages: {5}, Year: {6}"
+    message_template = ("**Name**: {0}\n\n**Author**: {1}\n\n**Avg Rating**: "
+                        "{2} by {3} users\n\n**Description**: {4}\n\n Pages: "
+                        "{5}, Year: {6}")
     message = ""
     for book in spool:
         message += message_template.format(book['title'],
@@ -110,7 +111,11 @@ def prepare_the_message(spool):
                                            book['num_pages'],
                                            book['publication_year'])
         message += '\n\n---\n\n'
-    message += 'Bleep, Blop, Bleep! I am still in beta, please be be nice. Contact [my creator](https://www.reddit.com/message/compose/?to=avinassh) for feedback, bug reports or just to say thanks!'
+    message += ('^(Bleep, Blop, Bleep! I am still in beta, please be be nice. '
+                'Contact [my creator](https://www.reddit.com/message/compose/'
+                '?to=avinassh) for feedback, bug reports or just to say '
+                'thanks! The code is on [Github](https://github.com/avinassh/'
+                'Reddit-GoodReads-Bot).)')
     return message
 
 
@@ -177,6 +182,7 @@ def main():
 
         take_a_nap()
         # break
+
 
 if __name__ == '__main__':
     initialize_db()
