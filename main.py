@@ -112,10 +112,10 @@ def prepare_the_message(spool):
                                            book['publication_year'])
         message += '\n\n---\n\n'
     message += ('^(Bleep, Blop, Bleep! I am still in beta, please be be nice. '
-                'Contact [my creator](https://www.reddit.com/message/compose/'
-                '?to=avinassh) for feedback, bug reports or just to say '
-                'thanks! The code is on [Github](https://github.com/avinassh/'
-                'Reddit-GoodReads-Bot).)')
+                'Contact )[^(my creator)](https://www.reddit.com/message/'
+                'compose/?to=avinassh) ^(for feedback, bug reports or just to '
+                'say thanks! The code is on )[^github](https://github.com/'
+                'avinassh/Reddit-GoodReads-Bot)^.')
     return message
 
 
