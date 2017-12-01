@@ -4,7 +4,7 @@
 
 #### System Requirements:
 
-- Python 3.4+
+- Python 3.6+
 - Requires [Pandoc](http://pandoc.org/):
 
     - OS X: `brew install pandoc`
@@ -12,6 +12,13 @@
 
 #### Python Requirements:
     `pip install -r requirements.txt`
+
+### Docker
+
+- Rename `envlist-sample` to `envlist`
+- Build docker image: `docker build -t reddit-goodreads .`
+- Run: `docker run --mount source=reddit-goodreads-volume,target=/home/ubuntu/db --env-file ./envlist --rm -it reddit-goodreads:latest`
+
 
 ## Todo:
 - ~~Add Peewee Support~~

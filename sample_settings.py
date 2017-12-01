@@ -1,11 +1,6 @@
 # Rename this file to `settings.py` in deployment
 
-# supported_subreddits = 'india'
-supported_subreddits = 'india+indianbooks'
-user_agent = ('Goodreads, v0.1. Gives info of the book whenever goodreads'
-              'link to a book is posted. (by /u/avinassh)')
-scopes = ['identity', 'submit', 'privatemessages', 'read']
-be_gentle_to_reddit = True
+from common_settings import *
 
 # reddit app
 app_key = 'K...q'

@@ -1,0 +1,7 @@
+REDDIT_APP_KEY=R...w
+REDDIT_APP_SECRET=w...g
+GOODREADS_API_KEY=5...Q
+GOODREADS_API_SECRET=Y...4
+BOT_USERNAME=goodreadsbot
+BOT_PASSWORD=H...8
+DB_LOCATION=/home/ubuntu/db/goodreadsbot.db
