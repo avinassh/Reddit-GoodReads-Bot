@@ -5,23 +5,20 @@ import json
 import random
 
 import praw
+import prawcore
 from peewee import (SqliteDatabase, Model, CharField, OperationalError,
                     DoesNotExist)
 import pypandoc
-from prawoauth2 import PrawOAuth2Mini
 
 from goodreadsapi import get_book_details_by_id, get_goodreads_ids
-from settings import (app_key, app_secret, access_token, refresh_token,
-                      user_agent, scopes, supported_subreddits,
-                      be_gentle_to_reddit)
+from settings import (app_key, app_secret, username, password,
+                      user_agent, supported_subreddits)
 
 # instantiate goodreads and reddit clients
+reddit_client = praw.Reddit(user_agent=user_agent, client_id=app_key,
+                            client_secret=app_secret, username=username,
+                            password=password)
 
-reddit_client = praw.Reddit(user_agent=user_agent)
-oauth_helper = PrawOAuth2Mini(reddit_client, app_key=app_key,
-                              app_secret=app_secret,
-                              access_token=access_token,
-                              refresh_token=refresh_token, scopes=scopes)
 
 replied_comments = []
 last_checked_comment = []
@@ -93,8 +90,8 @@ def get_a_random_message():
 
 
 def get_latest_comments(subreddit):
-    subreddit = reddit_client.get_subreddit(subreddit)
-    return subreddit.get_comments()
+    subreddit = reddit_client.subreddit(subreddit)
+    return subreddit.comments()
 
 
 def prepare_the_message(spool):
@@ -128,8 +125,7 @@ def html_to_md(string):
 
 
 def take_a_nap():
-    if be_gentle_to_reddit:
-        time.sleep(30)
+    time.sleep(30)
 
 
 def goodreads_bot_serve_people(subreddit='india'):
@@ -150,22 +146,25 @@ def goodreads_bot_serve_people(subreddit='india'):
             continue
         spool = map(get_book_details_by_id, goodread_ids)
         message = prepare_the_message(spool)
-        try:
-            comment.reply(message)
+
+        if len(message) > 9999:
+            error = ('You have linked to many books in your comment and '
+                     'my response crossed Reddit\'s 10k limit. Sorry!')
+            comment.reply(error)
             log_this_comment(comment)
-        except praw.errors.APIException as e:
-            if 'too long' in e.message:
-                error = ('You have linked to many books in your comment and '
-                         'my response crossed Reddit\'s 10k limit. Sorry!')
-                comment.reply(error)
             replied_comments.append(comment.id)
+            continue
+
+        comment.reply(message)
+        log_this_comment(comment)
+        replied_comments.append(comment.id)
 
 
 def reply_to_self_comments():
-    for comment in reddit_client.get_comment_replies():
+    for comment in reddit_client.inbox.comment_replies():
         if is_already_thanked(comment_id=comment.id) or not comment.new:
             break
-        comment.mark_as_read()
+        comment.mark_read()
         if 'thank' in comment.body.lower():
             comment.reply(get_a_random_message())
             thanked_comments.append(comment.id)
@@ -175,13 +174,11 @@ def reply_to_self_comments():
 def main():
     while True:
         try:
-            goodreads_bot_serve_people(subreddit=supported_subreddits)
             reply_to_self_comments()
-        except praw.errors.OAuthInvalidToken:
-            oauth_helper.refresh()
-
+            goodreads_bot_serve_people(subreddit=supported_subreddits)
+        except prawcore.exceptions.RequestException:
+            pass
         take_a_nap()
-        # break
 
 
 if __name__ == '__main__':
