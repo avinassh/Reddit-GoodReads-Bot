@@ -17,7 +17,7 @@
 
 - Rename `envlist-sample` to `envlist`
 - Build docker image: `docker build -t reddit-goodreads .`
-- Run: `docker run --env-file ./envlist --rm -it reddit-goodreads:latest`
+- Run: `docker run --mount source=reddit-goodreads,target=/home/ubuntu/db --env-file ./envlist --rm -it reddit-goodreads:latest`
 
 
 ## Todo:
