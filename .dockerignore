@@ -1,0 +1,9 @@
+settings_sample.py
+settings.py
+envlist
+envlist-sample
+.git
+.gitignore
+LICENSE
+README.md
+supervisor.conf
