@@ -3,6 +3,7 @@
 import time
 import json
 import random
+import os
 
 import praw
 import prawcore
@@ -23,7 +24,7 @@ reddit_client = praw.Reddit(user_agent=user_agent, client_id=app_key,
 replied_comments = []
 last_checked_comment = []
 thanked_comments = []
-db = SqliteDatabase('goodreadsbot.db')
+db = SqliteDatabase(os.getenv('DB_LOCATION', 'goodreadsbot.db'))
 
 
 with open('welcome_messages.json') as f:
