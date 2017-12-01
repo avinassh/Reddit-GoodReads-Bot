@@ -43,6 +43,7 @@ venv/
 
 # tokens
 settings.py
+envlist
 
 # db for bot
 goodreadsbot.db
