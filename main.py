@@ -109,7 +109,7 @@ def prepare_the_message(spool):
                                            book['num_pages'],
                                            book['publication_year'])
         message += '\n\n---\n\n'
-    message += ('^(Bleep, Blop, Bleep! I am still in beta, please be be nice. '
+    message += ('^(Bleep, Blop, Bleep! I am still in beta, please be nice. '
                 'Contact )[^(my creator)](https://www.reddit.com/message/'
                 'compose/?to=avinassh) ^(for feedback, bug reports or just to '
                 'say thanks! The code is on )[^github](https://github.com/'
